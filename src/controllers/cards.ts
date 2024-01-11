@@ -34,8 +34,29 @@ const createCard = async (req: CustomRequest, res: Response) => {
   }
 };
 
+const updateLike = async (req: CustomRequest, res: Response, method: string) => {
+  const userId = req.user?._id;
+  const { cardId } = req.params;
+
+  try {
+    const card = await Card.findByIdAndUpdate(
+      cardId,
+      { [method]: { likes: userId } },
+      { new: true },
+    );
+    return res.status(200).json(card);
+  } catch (error) {
+    return res.status(500).send({ message: 'Ошибка при обновлении лайка' });
+  }
+};
+
+const likeCard = (req: CustomRequest, res: Response) => updateLike(req, res, '$addToSet');
+const dislikeCard = (req: CustomRequest, res: Response) => updateLike(req, res, '$pull');
+
 export default {
   getCards,
   getCardById,
   createCard,
+  likeCard,
+  dislikeCard,
 };

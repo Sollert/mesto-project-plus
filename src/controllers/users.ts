@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import User from '../models/user';
+import { CustomRequest } from '../utils/types';
 
 const getUsers = async (req: Request, res: Response) => {
   try {
@@ -30,8 +31,32 @@ const createUser = async (req: Request, res: Response) => {
   }
 };
 
+const updateUserInfo = async (req: CustomRequest, res: Response) => {
+  const { name, about } = req.body;
+  const userId = req.user?._id;
+  try {
+    const user = await User.findByIdAndUpdate(userId, { name, about }, { new: true });
+    return res.status(200).json(user);
+  } catch (error) {
+    return res.status(500).send({ message: 'Ошибка при обновлении информации' });
+  }
+};
+
+const updateUserAvatar = async (req: CustomRequest, res: Response) => {
+  const { avatar } = req.body;
+  const userId = req.user?._id;
+  try {
+    const user = await User.findByIdAndUpdate(userId, { avatar }, { new: true });
+    return res.status(200).json(user);
+  } catch (error) {
+    return res.status(500).send({ message: 'Ошибка при обновлении аватара' });
+  }
+};
+
 export default {
   getUsers,
   getUserById,
   createUser,
+  updateUserInfo,
+  updateUserAvatar,
 };
