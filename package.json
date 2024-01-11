@@ -2,7 +2,6 @@
   "name": "mesto-backend",
   "version": "1.0.0",
   "description": "Backend for Mesto project",
-  "type": "module",
   "main": "dist/app.js",
   "scripts": {
     "lint": "npx eslint src/**/*.ts",
