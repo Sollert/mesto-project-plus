@@ -27,12 +27,13 @@ const cardSchema = new Schema<Card>({
   },
   likes: {
     type: [Schema.Types.ObjectId],
+    ref: user,
     default: [],
     required: true,
   },
   createdAt: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
 });
 
