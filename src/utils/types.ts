@@ -5,3 +5,8 @@ export interface CustomRequest extends Request {
     _id: string
   }
 }
+
+export interface ICustomError extends Error {
+  statusCode: number,
+  message: string
+}

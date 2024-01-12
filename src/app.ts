@@ -1,8 +1,10 @@
 import process from 'process';
 import express from 'express';
 import mongoose from 'mongoose';
+import colors from 'colors';
 import router from './routes';
 import { CustomRequest } from './utils/types';
+import errorsMiddleware from './middlewares/errors';
 
 const {
   PORT = 3000,
@@ -21,7 +23,17 @@ app.use((req: CustomRequest, res, next) => {
 
 app.use(express.json());
 app.use('/', router);
+app.use(errorsMiddleware);
 
-mongoose.connect(DATABASE_URL);
+const connect = async () => {
+  try {
+    await mongoose.connect(DATABASE_URL);
+    console.log(colors.bold.green('Подключение к Базе данных произошло успешно'));
+    app.listen(PORT);
+    console.log(colors.bold.green(`Сервер запущен на порту: ${PORT}`));
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-app.listen(PORT);
+connect();
