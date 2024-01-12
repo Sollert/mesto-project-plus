@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { Error } from 'mongoose';
 import Card from '../models/card';
 import { CustomRequest } from '../utils/types';
 import NotFoundError from '../errors/not-found-error';
@@ -6,7 +7,7 @@ import BadRequestError from '../errors/bad-request-error';
 
 const getCards = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const cards = await Card.find({}).populate('owner');
+    const cards = await Card.find({});
     return res.status(200).json(cards);
   } catch (error) {
     return next(error);
@@ -19,8 +20,9 @@ const removeCard = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const card = await Card.findByIdAndRemove(cardId);
     if (!card) return next(new NotFoundError('Карточка с таким ID не найдена'));
-    return res.status(204).json(card);
+    return res.status(204);
   } catch (error) {
+    if (error instanceof Error.CastError) return next(new BadRequestError('Невалидный ID карточки'));
     return next(error);
   }
 };
@@ -29,12 +31,11 @@ const createCard = async (req: CustomRequest, res: Response, next: NextFunction)
   const { name, link } = req.body;
   const owner = req.user?._id;
 
-  if (!name || !link || !owner) return next(new BadRequestError('Неправильное тело запроса'));
-
   try {
     const card = await Card.create({ name, link, owner });
     return res.status(200).json(card);
   } catch (error) {
+    if (error instanceof Error.ValidationError) return next(new BadRequestError('Некорректный запрос'));
     return next(error);
   }
 };
@@ -48,8 +49,6 @@ const updateLike = async (
   const userId = req.user?._id;
   const { cardId } = req.params;
 
-  if (!userId || !cardId) return next(new BadRequestError('Неправильное тело запроса'));
-
   try {
     const card = await Card.findByIdAndUpdate(
       cardId,
@@ -60,6 +59,7 @@ const updateLike = async (
 
     return res.status(200).json(card);
   } catch (error) {
+    if (error instanceof Error.ValidationError) return next(new BadRequestError('Некорректный запрос'));
     return next(error);
   }
 };
