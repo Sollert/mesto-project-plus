@@ -28,10 +28,22 @@ const getUserById = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
-  const { name, about, avatar } = req.body;
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
 
   try {
-    const user = await User.create({ name, about, avatar });
+    const user = await User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password,
+    });
     return res.status(200).send(user);
   } catch (error) {
     if (error instanceof Error.ValidationError) return next(new BadRequestError('Некорректный запрос'));
