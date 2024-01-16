@@ -29,6 +29,7 @@ const userSchema = new Schema<User>({
   email: {
     type: String,
     required: true,
+    unique: true,
     validate: {
       validator: (value: string) => validator.isEmail(value),
       message: (props) => `${props.value} не валидная почта`,
