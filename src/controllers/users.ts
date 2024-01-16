@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { Error } from 'mongoose';
+import bcrypt from 'bcrypt';
 import User from '../models/user';
 import { CustomRequest } from '../utils/types';
 import BadRequestError from '../errors/bad-request-error';
@@ -37,12 +38,13 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
   } = req.body;
 
   try {
+    const hashPassword = await bcrypt.hash(password, 10);
     const user = await User.create({
       name,
       about,
       avatar,
       email,
-      password,
+      password: hashPassword,
     });
     return res.status(200).send(user);
   } catch (error) {
