@@ -5,6 +5,7 @@ import User from '../models/user';
 import { CustomRequest } from '../utils/types';
 import BadRequestError from '../errors/bad-request-error';
 import NotFoundError from '../errors/not-found-error';
+import ConflictError from '../errors/conflict-error';
 
 const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -47,7 +48,10 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
       password: hashPassword,
     });
     return res.status(200).send(user);
-  } catch (error) {
+  } catch (error: any) {
+    if (error.name === 'MongoServerError' && error.code === 11000) {
+      next(new ConflictError('Пользователь с таким email уже существует'));
+    }
     if (error instanceof Error.ValidationError) return next(new BadRequestError('Некорректный запрос'));
     return next(error);
   }
@@ -61,7 +65,7 @@ const updateUserInfo = async (req: CustomRequest, res: Response, next: NextFunct
     const user = await User.findByIdAndUpdate(userId, { name, about }, { new: true });
     if (!user) return next(new NotFoundError('Пользователя с таким ID не существует'));
     return res.status(200).json(user);
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof Error.ValidationError) return next(new BadRequestError('Некорректный запрос'));
     return next(error);
   }
