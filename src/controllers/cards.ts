@@ -4,6 +4,7 @@ import Card from '../models/card';
 import { CustomRequest } from '../utils/types';
 import NotFoundError from '../errors/not-found-error';
 import BadRequestError from '../errors/bad-request-error';
+import ConflictError from '../errors/conflict-error';
 
 const getCards = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -14,12 +15,15 @@ const getCards = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const removeCard = async (req: Request, res: Response, next: NextFunction) => {
+const removeCard = async (req: CustomRequest, res: Response, next: NextFunction) => {
   const { cardId } = req.params;
+  const userId = req.user?._id;
 
   try {
-    const card = await Card.findByIdAndRemove(cardId);
+    const card = await Card.findById(cardId).orFail();
+    if (card.owner.toString() !== userId) return next(new ConflictError('Нельзя удалять чужие карточки!'));
     if (!card) return next(new NotFoundError('Карточка с таким ID не найдена'));
+    await card.deleteOne();
     return res.status(204);
   } catch (error) {
     if (error instanceof Error.CastError) return next(new BadRequestError('Невалидный ID карточки'));

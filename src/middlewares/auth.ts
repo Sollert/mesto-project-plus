@@ -1,14 +1,14 @@
 import { Response, NextFunction } from 'express';
-import ConflictError from '../errors/conflict-error';
 import jwt from 'jsonwebtoken';
-import { IAuthRequest } from '../utils/types';
 import process from 'process';
+import { IAuthRequest } from '../utils/types';
+import UnauthorizedError from '../errors/unauthorized-error';
 
 const { JWT_SECRET = 'dev-secret' } = process.env;
 const authMiddleware = (req: IAuthRequest, res: Response, next: NextFunction) => {
   const token = req.cookies.jwt;
   if (!token) {
-    return next(new ConflictError('Необходима авторизация'));
+    return next(new UnauthorizedError('Необходима авторизация'));
   }
 
   let payload;
@@ -16,7 +16,7 @@ const authMiddleware = (req: IAuthRequest, res: Response, next: NextFunction) =>
   try {
     payload = jwt.verify(token, JWT_SECRET);
   } catch (error) {
-    return next(new ConflictError('Необходима авторизация'));
+    return next(new UnauthorizedError('Необходима авторизация'));
   }
 
   req.user = payload;
