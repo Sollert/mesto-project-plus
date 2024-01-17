@@ -1,11 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 import { Error } from 'mongoose';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import User from '../models/user';
 import { CustomRequest } from '../utils/types';
 import BadRequestError from '../errors/bad-request-error';
 import NotFoundError from '../errors/not-found-error';
 import ConflictError from '../errors/conflict-error';
+import UnauthorizedError from '../errors/unauthorized-error';
+import process from 'process';
+
+const { JWT_SECRET = 'dev-secret' } = process.env
 
 const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -85,10 +90,43 @@ const updateUserAvatar = async (req: CustomRequest, res: Response, next: NextFun
   }
 };
 
+const loginUser = async (req: Request, res: Response, next: NextFunction) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      next(new UnauthorizedError('Неправильные почта или пароль'));
+    } else {
+      const matched = await bcrypt.compare(password, user.password);
+      if (matched) {
+        const token = jwt.sign(
+          { _id: user._id },
+          JWT_SECRET,
+          { expiresIn: '7d' },
+        );
+        res
+          .cookie('jwt', token, {
+            maxAge: 3600000 * 24 * 7,
+            httpOnly: true,
+            sameSite: true,
+          })
+          .end();
+      } else {
+        return next(new UnauthorizedError('Неправильные почта или пароль'));
+      }
+    }
+  } catch (error) {
+    if (error instanceof Error.ValidationError) return next(new BadRequestError('Некорректный запрос'));
+    return next(error);
+  }
+};
+
 export default {
   getUsers,
   getUserById,
   createUser,
   updateUserInfo,
   updateUserAvatar,
+  loginUser,
 };
