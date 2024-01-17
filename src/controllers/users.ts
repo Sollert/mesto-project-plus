@@ -22,11 +22,11 @@ const getUsers = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const getCurrentUser = async (req: CustomRequest, res: Response, next: NextFunction) => {
-  console.log(req.user)
   const id = req.user?._id;
   try {
-    const users = await User.findById(id);
-    return res.status(200).json(users);
+    const user = await User.findById(id);
+    if (!user) return next(new NotFoundError('Пользователя с таким ID не существует'));
+    return res.status(200).json(user);
   } catch (error) {
     return next(error);
   }
