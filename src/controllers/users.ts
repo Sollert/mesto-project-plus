@@ -2,13 +2,13 @@ import { NextFunction, Request, Response } from 'express';
 import { Error } from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import process from 'process';
 import User from '../models/user';
 import { CustomRequest } from '../utils/types';
 import BadRequestError from '../errors/bad-request-error';
 import NotFoundError from '../errors/not-found-error';
 import ConflictError from '../errors/conflict-error';
 import UnauthorizedError from '../errors/unauthorized-error';
-import process from 'process';
 
 const { JWT_SECRET = 'dev-secret' } = process.env
 
@@ -105,7 +105,7 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select('+password');
     if (!user) {
       next(new UnauthorizedError('Неправильные почта или пароль'));
     } else {

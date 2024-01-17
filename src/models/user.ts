@@ -38,6 +38,7 @@ const userSchema = new Schema<User>({
   password: {
     type: String,
     required: true,
+    select: false,
   },
 });
 
