@@ -21,6 +21,17 @@ const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const getCurrentUser = async (req: CustomRequest, res: Response, next: NextFunction) => {
+  console.log(req.user)
+  const id = req.user?._id;
+  try {
+    const users = await User.findById(id);
+    return res.status(200).json(users);
+  } catch (error) {
+    return next(error);
+  }
+};
+
 const getUserById = async (req: Request, res: Response, next: NextFunction) => {
   const { userId } = req.params;
 
@@ -124,6 +135,7 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
 
 export default {
   getUsers,
+  getCurrentUser,
   getUserById,
   createUser,
   updateUserInfo,
