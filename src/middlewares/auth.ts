@@ -5,6 +5,7 @@ import { IAuthRequest } from '../utils/types';
 import UnauthorizedError from '../errors/unauthorized-error';
 
 const { JWT_SECRET = 'dev-secret' } = process.env;
+// eslint-disable-next-line consistent-return
 const authMiddleware = (req: IAuthRequest, res: Response, next: NextFunction) => {
   const token = req.cookies.jwt;
   if (!token) {

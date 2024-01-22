@@ -10,7 +10,7 @@ import NotFoundError from '../errors/not-found-error';
 import ConflictError from '../errors/conflict-error';
 import UnauthorizedError from '../errors/unauthorized-error';
 
-const { JWT_SECRET = 'dev-secret' } = process.env
+const { JWT_SECRET = 'dev-secret' } = process.env;
 
 const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -101,6 +101,7 @@ const updateUserAvatar = async (req: CustomRequest, res: Response, next: NextFun
   }
 };
 
+// eslint-disable-next-line consistent-return
 const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
 

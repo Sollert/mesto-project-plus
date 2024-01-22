@@ -8,9 +8,7 @@ const router = Router();
 router.use('/users', userRouter);
 router.use('/cards', cardRouter);
 router.use((req: Request, res: Response, next: NextFunction) => {
-  if (!req.route) {
-    next(new NotFoundError('Страница не найдена'));
-  }
+  next(new NotFoundError('Страница не найдена'));
 });
 
 export default router;

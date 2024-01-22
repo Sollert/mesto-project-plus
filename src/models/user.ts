@@ -1,5 +1,6 @@
 import { model, Schema } from 'mongoose';
 import validator from 'validator';
+import config from '../utils/config';
 
 interface User {
   name: string,
@@ -25,6 +26,10 @@ const userSchema = new Schema<User>({
   avatar: {
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    validate: {
+      validator: (link: string) => config.urlRegExp.test(link),
+      message: 'Невалидная ссылка на аватар',
+    },
   },
   email: {
     type: String,

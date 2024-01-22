@@ -1,6 +1,5 @@
 import { celebrate, Joi } from 'celebrate';
-
-const urlRegExp: RegExp = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/;
+import config from '../utils/config';
 
 const getUserByIdValidation = celebrate({
   params: Joi.object({
@@ -17,7 +16,7 @@ const updateUserInfoValidation = celebrate({
 
 const updateUserAvatarValidation = celebrate({
   body: Joi.object({
-    avatar: Joi.string().pattern(urlRegExp).required(),
+    avatar: Joi.string().pattern(config.urlRegExp).required(),
   }),
 });
 
@@ -25,7 +24,7 @@ const createUserValidation = celebrate({
   body: Joi.object({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(200),
-    avatar: Joi.string().pattern(urlRegExp),
+    avatar: Joi.string().pattern(config.urlRegExp),
     email: Joi.string().email().required(),
     password: Joi.string().required(),
   }),
