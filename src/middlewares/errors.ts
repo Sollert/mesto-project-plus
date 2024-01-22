@@ -7,6 +7,7 @@ const errorsMiddleware = (err: ICustomError, req: Request, res: Response, next: 
   res.status(statusCode).send({
     message: statusCode === 500 ? 'На сервере произошла ошибка' : message,
   });
+  next();
 };
 
 export default errorsMiddleware;
