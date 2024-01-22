@@ -1,5 +1,6 @@
 import { model, Schema } from 'mongoose';
 import user from './user';
+import config from '../utils/config';
 
 interface Card {
   name: string,
@@ -19,6 +20,10 @@ const cardSchema = new Schema<Card>({
   link: {
     type: String,
     required: true,
+    validate: {
+      validator: (link: string) => config.urlRegExp.test(link),
+      message: 'Невалидная ссылка на карточку',
+    },
   },
   owner: {
     type: Schema.Types.ObjectId,

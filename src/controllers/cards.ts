@@ -20,13 +20,11 @@ const removeCard = async (req: CustomRequest, res: Response, next: NextFunction)
   const userId = req.user?._id;
 
   try {
-    const card = await Card.findById(cardId).orFail();
+    const card = await Card.findById(cardId).orFail(new NotFoundError('Карточка с таким ID не найдена'));
     if (card.owner.toString() !== userId) return next(new ForbiddenError('Нельзя удалять чужие карточки!'));
-    if (!card) return next(new NotFoundError('Карточка с таким ID не найдена'));
     await card.deleteOne();
     return res.status(204);
   } catch (error) {
-    if (error instanceof Error.CastError) return next(new BadRequestError('Невалидный ID карточки'));
     return next(error);
   }
 };
@@ -39,7 +37,7 @@ const createCard = async (req: CustomRequest, res: Response, next: NextFunction)
     const card = await Card.create({ name, link, owner });
     return res.status(200).json(card);
   } catch (error) {
-    if (error instanceof Error.ValidationError) return next(new BadRequestError('Некорректный запрос'));
+    if (error instanceof Error.CastError) return next(new BadRequestError('Некорректный запрос'));
     return next(error);
   }
 };
