@@ -4,7 +4,7 @@ import Card from '../models/card';
 import { CustomRequest } from '../utils/types';
 import NotFoundError from '../errors/not-found-error';
 import BadRequestError from '../errors/bad-request-error';
-import ConflictError from '../errors/conflict-error';
+import ForbiddenError from '../errors/forbidden-error';
 
 const getCards = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -21,7 +21,7 @@ const removeCard = async (req: CustomRequest, res: Response, next: NextFunction)
 
   try {
     const card = await Card.findById(cardId).orFail();
-    if (card.owner.toString() !== userId) return next(new ConflictError('Нельзя удалять чужие карточки!'));
+    if (card.owner.toString() !== userId) return next(new ForbiddenError('Нельзя удалять чужие карточки!'));
     if (!card) return next(new NotFoundError('Карточка с таким ID не найдена'));
     await card.deleteOne();
     return res.status(204);
