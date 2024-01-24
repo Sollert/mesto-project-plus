@@ -25,6 +25,9 @@ const removeCard = async (req: CustomRequest, res: Response, next: NextFunction)
     await card.deleteOne();
     return res.status(204);
   } catch (error) {
+    if (error instanceof Error.CastError) {
+      return next(new BadRequestError('Неверный ID пользователя'));
+    }
     return next(error);
   }
 };
@@ -61,7 +64,7 @@ const updateLike = async (
 
     return res.status(200).json(card);
   } catch (error) {
-    if (error instanceof Error.ValidationError) return next(new BadRequestError('Некорректный запрос'));
+    if (error instanceof Error.CastError) return next(new BadRequestError('Некорректный запрос'));
     return next(error);
   }
 };
