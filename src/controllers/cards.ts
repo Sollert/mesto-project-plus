@@ -26,7 +26,7 @@ const removeCard = async (req: CustomRequest, res: Response, next: NextFunction)
     return res.status(204);
   } catch (error) {
     if (error instanceof Error.CastError) {
-      return next(new BadRequestError('Неверный ID пользователя'));
+      return next(new BadRequestError('Неверный ID карточки'));
     }
     return next(error);
   }
