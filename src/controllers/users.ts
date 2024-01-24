@@ -63,10 +63,15 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
       email,
       password: hashPassword,
     });
-    return res.status(200).send(user);
+    return res.status(200).send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+    });
   } catch (error: any) {
     if (error.name === 'MongoServerError' && error.code === 11000) {
-      next(new ConflictError('Пользователь с таким email уже существует'));
+      return next(new ConflictError('Пользователь с таким email уже существует'));
     }
     if (error instanceof Error.ValidationError) return next(new BadRequestError('Некорректный запрос'));
     return next(error);

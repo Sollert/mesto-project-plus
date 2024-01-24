@@ -20,11 +20,17 @@ const removeCard = async (req: CustomRequest, res: Response, next: NextFunction)
   const userId = req.user?._id;
 
   try {
-    const card = await Card.findById(cardId).orFail(new NotFoundError('Карточка с таким ID не найдена'));
+    const card = await Card.findById(cardId).orFail();
     if (card.owner.toString() !== userId) return next(new ForbiddenError('Нельзя удалять чужие карточки!'));
     await card.deleteOne();
     return res.status(204);
   } catch (error) {
+    if (error instanceof Error.DocumentNotFoundError) {
+      return next(new BadRequestError('Карточки с таким ID не существует'));
+    }
+    if (error instanceof Error.CastError) {
+      return next(new BadRequestError('Неверный ID карточки'));
+    }
     return next(error);
   }
 };
@@ -61,7 +67,7 @@ const updateLike = async (
 
     return res.status(200).json(card);
   } catch (error) {
-    if (error instanceof Error.ValidationError) return next(new BadRequestError('Некорректный запрос'));
+    if (error instanceof Error.CastError) return next(new BadRequestError('Некорректный запрос'));
     return next(error);
   }
 };
